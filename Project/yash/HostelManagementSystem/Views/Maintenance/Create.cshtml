@@ -1,0 +1,87 @@
+@model HostelManagementSystem.Models.MaintenanceRequest
+
+@{
+    ViewData["Title"] = "New Maintenance Request";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h4 fw-bold mb-1">Create Maintenance Request</h2>
+                <p class="text-muted mb-0 small">Log a room repair, electrical, or plumbing issue</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="RoomId" class="form-label fw-semibold"></label>
+                            <select asp-for="RoomId" class="form-select" asp-items="ViewBag.RoomId">
+                                <option value="">-- Select Room --</option>
+                            </select>
+                            <span asp-validation-for="RoomId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="StudentId" class="form-label fw-semibold"></label>
+                            <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
+                                <option value="">-- Hostel Staff / None --</option>
+                            </select>
+                            <span asp-validation-for="StudentId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="IssueTitle" class="form-label fw-semibold"></label>
+                            <input asp-for="IssueTitle" class="form-control" placeholder="e.g. Broken Fan, Water Leakage, Light bulb fuse" />
+                            <span asp-validation-for="IssueTitle" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Provide details regarding the maintenance problem..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="RequestDate" class="form-label fw-semibold"></label>
+                            <input asp-for="RequestDate" class="form-control" type="date" />
+                            <span asp-validation-for="RequestDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label fw-semibold"></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-warning text-dark px-4 fw-semibold">
+                            <i class="bi bi-check-lg me-1"></i> Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

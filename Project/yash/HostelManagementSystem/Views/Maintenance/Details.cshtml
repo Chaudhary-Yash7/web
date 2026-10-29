@@ -1,0 +1,63 @@
+@model HostelManagementSystem.Models.MaintenanceRequest
+
+@{
+    ViewData["Title"] = "Maintenance Ticket Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h4 fw-bold mb-1">Maintenance Ticket #@Model.MaintenanceRequestId</h2>
+                <p class="text-muted mb-0 small">Repair details and resolution status</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-wrench-adjustable text-warning me-2"></i>@Model.IssueTitle</h6>
+                @if (Model.Status == "Pending")
+                {
+                    <span class="badge bg-danger badge-custom">Pending</span>
+                }
+                else if (Model.Status == "In Progress")
+                {
+                    <span class="badge bg-warning text-dark badge-custom">In Progress</span>
+                }
+                else
+                {
+                    <span class="badge bg-success badge-custom">Resolved</span>
+                }
+            </div>
+
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">Hostel Room</dt>
+                    <dd class="col-sm-8 fw-bold text-primary">Room @(Model.Room?.RoomNumber) (@(Model.Room?.RoomType))</dd>
+
+                    <dt class="col-sm-4 text-muted">Reported By</dt>
+                    <dd class="col-sm-8">@(Model.Student != null ? Model.Student.FullName : "Hostel Warden / Staff")</dd>
+
+                    <dt class="col-sm-4 text-muted">Reported Date</dt>
+                    <dd class="col-sm-8">@Model.RequestDate.ToString("dd MMMM yyyy")</dd>
+
+                    <dt class="col-sm-4 text-muted">Issue Description</dt>
+                    <dd class="col-sm-8 bg-light p-3 rounded-2 mt-2">@Model.Description</dd>
+                </dl>
+            </div>
+
+            <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+                <a asp-action="Edit" asp-route-id="@Model.MaintenanceRequestId" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil-square me-1"></i> Edit / Update Status
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.MaintenanceRequestId" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash me-1"></i> Delete Ticket
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+

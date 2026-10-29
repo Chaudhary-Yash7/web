@@ -1,0 +1,173 @@
+@model HostelManagementSystem.Models.Room
+
+@{
+    ViewData["Title"] = "Room Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 fw-bold mb-1">Room @Model.RoomNumber Details</h2>
+        <p class="text-muted mb-0 small">Overview of room capacity, occupants, and maintenance status</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.RoomId" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Room Summary -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-3 p-4">
+            <div class="text-center mb-3">
+                <div class="bg-light text-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 64px; height: 64px; font-size: 1.75rem;">
+                    <i class="bi bi-door-closed"></i>
+                </div>
+                <h4 class="fw-bold mb-0">Room @Model.RoomNumber</h4>
+                <div class="badge bg-primary mt-1">@Model.RoomType</div>
+            </div>
+
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted">Total Capacity:</span>
+                    <span class="fw-bold">@Model.Capacity Beds</span>
+                </li>
+                <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted">Occupied Beds:</span>
+                    <span class="fw-bold text-primary">@Model.OccupiedBeds Beds</span>
+                </li>
+                <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted">Available Beds:</span>
+                    <span class="fw-bold text-success">@(Math.Max(0, Model.Capacity - Model.OccupiedBeds)) Beds</span>
+                </li>
+                <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted">Monthly Fee:</span>
+                    <span class="fw-bold text-dark">₹@Model.MonthlyFee.ToString("N0")</span>
+                </li>
+                <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted">Status:</span>
+                    <span>
+                        @if (Model.Status == "Available")
+                        {
+                            <span class="badge bg-success badge-custom">Available</span>
+                        }
+                        else if (Model.Status == "Occupied")
+                        {
+                            <span class="badge bg-warning text-dark badge-custom">Full</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger badge-custom">@Model.Status</span>
+                        }
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Occupants & Maintenance -->
+    <div class="col-lg-8">
+        <!-- Current Occupants -->
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-people text-primary me-2"></i>Current Occupants & Allocation History</h6>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Allocations != null && Model.Allocations.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Course</th>
+                                    <th>Allocated Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var alloc in Model.Allocations)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@(alloc.Student?.FullName ?? "Unknown")</td>
+                                        <td>@(alloc.Student?.Course ?? "N/A")</td>
+                                        <td>@alloc.AllocationDate.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            @if (alloc.Status == "Active")
+                                            {
+                                                <span class="badge bg-success badge-custom">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary badge-custom">@alloc.Status</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted small">No students currently allocated to this room.</div>
+                }
+            </div>
+        </div>
+
+        <!-- Maintenance Requests -->
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-tools text-primary me-2"></i>Maintenance History</h6>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.MaintenanceRequests != null && Model.MaintenanceRequests.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Issue</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var m in Model.MaintenanceRequests)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@m.IssueTitle</td>
+                                        <td>@m.RequestDate.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            @if (m.Status == "Pending")
+                                            {
+                                                <span class="badge bg-danger badge-custom">Pending</span>
+                                            }
+                                            else if (m.Status == "In Progress")
+                                            {
+                                                <span class="badge bg-warning text-dark badge-custom">In Progress</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success badge-custom">Resolved</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted small">No maintenance requests for this room.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

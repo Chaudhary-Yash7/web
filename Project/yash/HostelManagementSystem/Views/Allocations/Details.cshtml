@@ -1,0 +1,73 @@
+@model HostelManagementSystem.Models.Allocation
+
+@{
+    ViewData["Title"] = "Allocation Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h4 fw-bold mb-1">Allocation Details</h2>
+                <p class="text-muted mb-0 small">Information about room assignment and dates</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-key text-primary me-2"></i>Allocation #@Model.AllocationId</h6>
+                    @if (Model.Status == "Active")
+                    {
+                        <span class="badge bg-success badge-custom">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary badge-custom">@Model.Status</span>
+                    }
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5 text-muted">Student Name</dt>
+                    <dd class="col-sm-7 fw-bold">@(Model.Student?.FullName ?? "Unknown")</dd>
+
+                    <dt class="col-sm-5 text-muted">Student Email</dt>
+                    <dd class="col-sm-7">@(Model.Student?.Email ?? "N/A")</dd>
+
+                    <dt class="col-sm-5 text-muted">Phone Number</dt>
+                    <dd class="col-sm-7">@(Model.Student?.Phone ?? "N/A")</dd>
+
+                    <dt class="col-sm-5 text-muted">Course & Semester</dt>
+                    <dd class="col-sm-7">@(Model.Student?.Course) - Sem @(Model.Student?.Semester)</dd>
+
+                    <hr class="my-3 text-muted" />
+
+                    <dt class="col-sm-5 text-muted">Allocated Room</dt>
+                    <dd class="col-sm-7 fw-bold text-primary">Room @(Model.Room?.RoomNumber) (@(Model.Room?.RoomType))</dd>
+
+                    <dt class="col-sm-5 text-muted">Monthly Rent</dt>
+                    <dd class="col-sm-7">₹@(Model.Room?.MonthlyFee.ToString("N0")) / month</dd>
+
+                    <dt class="col-sm-5 text-muted">Allocation Date</dt>
+                    <dd class="col-sm-7">@Model.AllocationDate.ToString("dd MMMM yyyy")</dd>
+
+                    <dt class="col-sm-5 text-muted">Check-Out Date</dt>
+                    <dd class="col-sm-7">@(Model.CheckOutDate.HasValue ? Model.CheckOutDate.Value.ToString("dd MMMM yyyy") : "Currently Staying")</dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+                <a asp-action="Edit" asp-route-id="@Model.AllocationId" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil-square me-1"></i> Edit Allocation
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.AllocationId" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash me-1"></i> Delete
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+

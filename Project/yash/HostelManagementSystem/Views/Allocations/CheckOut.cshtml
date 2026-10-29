@@ -1,0 +1,43 @@
+@model HostelManagementSystem.Models.Allocation
+
+@{
+    ViewData["Title"] = "Check Out Student";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-warning text-dark py-3">
+                <h5 class="mb-0 fs-6 fw-bold"><i class="bi bi-box-arrow-right me-2"></i>Confirm Student Check-Out</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-secondary fw-semibold">Are you sure you want to check out this student? The allocated room bed will be released immediately.</p>
+
+                <dl class="row mb-4">
+                    <dt class="col-sm-5 text-muted">Student Name</dt>
+                    <dd class="col-sm-7 fw-bold">@(Model.Student?.FullName ?? "Unknown")</dd>
+
+                    <dt class="col-sm-5 text-muted">Room</dt>
+                    <dd class="col-sm-7 text-primary fw-bold">Room @(Model.Room?.RoomNumber) (@(Model.Room?.RoomType))</dd>
+
+                    <dt class="col-sm-5 text-muted">Allocated Date</dt>
+                    <dd class="col-sm-7">@Model.AllocationDate.ToString("dd MMM yyyy")</dd>
+
+                    <dt class="col-sm-5 text-muted">Check-Out Date</dt>
+                    <dd class="col-sm-7 fw-bold text-success">@DateTime.Today.ToString("dd MMM yyyy") (Today)</dd>
+                </dl>
+
+                <form asp-action="CheckOut" method="post">
+                    <input type="hidden" asp-for="AllocationId" />
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold px-4">
+                            <i class="bi bi-box-arrow-right me-1"></i> Confirm & Release Bed
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

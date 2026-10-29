@@ -1,0 +1,92 @@
+@model HostelManagementSystem.Models.Room
+
+@{
+    ViewData["Title"] = "Edit Room";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h4 fw-bold mb-1">Edit Room Details</h2>
+                <p class="text-muted mb-0 small">Update room specifications and pricing</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="RoomId" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="RoomNumber" class="form-label fw-semibold"></label>
+                            <input asp-for="RoomNumber" class="form-control" />
+                            <span asp-validation-for="RoomNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="RoomType" class="form-label fw-semibold"></label>
+                            <select asp-for="RoomType" class="form-select">
+                                <option value="Single">Single (1 Bed)</option>
+                                <option value="Double">Double (2 Beds)</option>
+                                <option value="Triple">Triple (3 Beds)</option>
+                                <option value="Dormitory">Dormitory (4+ Beds)</option>
+                            </select>
+                            <span asp-validation-for="RoomType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Capacity" class="form-label fw-semibold"></label>
+                            <input asp-for="Capacity" class="form-control" type="number" min="1" max="20" />
+                            <span asp-validation-for="Capacity" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="OccupiedBeds" class="form-label fw-semibold"></label>
+                            <input asp-for="OccupiedBeds" class="form-control" type="number" min="0" max="@Model.Capacity" />
+                            <span asp-validation-for="OccupiedBeds" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="MonthlyFee" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input asp-for="MonthlyFee" class="form-control" type="number" step="100" min="1" />
+                            </div>
+                            <span asp-validation-for="MonthlyFee" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label fw-semibold"></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Available">Available</option>
+                                <option value="Occupied">Occupied</option>
+                                <option value="Under Maintenance">Under Maintenance</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

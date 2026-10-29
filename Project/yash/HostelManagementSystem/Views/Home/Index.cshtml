@@ -1,0 +1,402 @@
+@model HostelManagementSystem.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var isUserRole = User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("User");
+    var currentStudent = ViewBag.CurrentStudent as HostelManagementSystem.Models.Student;
+}
+
+@if (ViewBag.DatabaseError != null)
+{
+    <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+            <div>
+                <strong>Database Setup Notice:</strong> @ViewBag.DatabaseError
+            </div>
+        </div>
+    </div>
+}
+
+@if (isUserRole)
+{
+    <!-- ============================================== -->
+    <!-- USER (STUDENT / RESIDENT) PORTAL VIEW          -->
+    <!-- ============================================== -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="h4 fw-bold mb-1">Welcome, @(User.FindFirst("FullName")?.Value ?? User.Identity?.Name)!</h2>
+            <p class="text-muted mb-0 small">Student Resident Portal & Room Information</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Maintenance" asp-action="Create" class="btn btn-warning text-dark btn-sm px-3 fw-semibold">
+                <i class="bi bi-tools me-1"></i> Submit Complaint / Request
+            </a>
+            <a asp-controller="Payments" asp-action="Index" class="btn btn-outline-success btn-sm px-3">
+                <i class="bi bi-receipt me-1"></i> View My Receipts
+            </a>
+        </div>
+    </div>
+
+    <!-- Student Quick Stat Cards -->
+    <div class="row g-3 mb-4">
+        <!-- My Allocated Room -->
+        <div class="col-md-4">
+            <div class="stat-card stat-blue">
+                <div>
+                    <div class="stat-title">My Allocated Room</div>
+                    @{
+                        var activeAlloc = currentStudent?.Allocations?.FirstOrDefault(a => a.Status == "Active");
+                    }
+                    @if (activeAlloc != null && activeAlloc.Room != null)
+                    {
+                        <div class="stat-value text-primary">Room @activeAlloc.Room.RoomNumber</div>
+                        <small class="text-muted">@activeAlloc.Room.RoomType (₹@activeAlloc.Room.MonthlyFee/mo)</small>
+                    }
+                    else
+                    {
+                        <div class="stat-value text-secondary fs-5">Not Allocated</div>
+                        <small class="text-muted">Contact Admin to assign room</small>
+                    }
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-door-open-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Fee Payments Status -->
+        <div class="col-md-4">
+            <div class="stat-card stat-green">
+                <div>
+                    <div class="stat-title">Fee Payment Status</div>
+                    @{
+                        var paidCount = currentStudent?.Payments?.Count(p => p.PaymentStatus == "Paid") ?? 0;
+                        var pendingCount = currentStudent?.Payments?.Count(p => p.PaymentStatus == "Pending") ?? 0;
+                    }
+                    <div class="stat-value text-success">@paidCount Paid</div>
+                    <small class="text-muted">@(pendingCount > 0 ? $"{pendingCount} Pending dues" : "All cleared")</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Maintenance Requests -->
+        <div class="col-md-4">
+            <div class="stat-card stat-purple">
+                <div>
+                    <div class="stat-title">Maintenance Requests</div>
+                    @{
+                        var totalReqs = currentStudent?.MaintenanceRequests?.Count ?? 0;
+                        var pendingReqs = currentStudent?.MaintenanceRequests?.Count(m => m.Status == "Pending") ?? 0;
+                    }
+                    <div class="stat-value text-dark">@totalReqs Total</div>
+                    <small class="text-muted">@pendingReqs Pending review</small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-wrench-adjustable-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Room & Payment Details -->
+    <div class="row g-4">
+        <!-- Room Info Card -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-info-circle text-primary me-2"></i>My Resident Details</h6>
+                </div>
+                <div class="card-body p-4">
+                    @if (currentStudent != null)
+                    {
+                        <dl class="row mb-0 small">
+                            <dt class="col-sm-5 text-muted">Full Name</dt>
+                            <dd class="col-sm-7 fw-bold">@currentStudent.FullName</dd>
+
+                            <dt class="col-sm-5 text-muted">Course / Branch</dt>
+                            <dd class="col-sm-7">@currentStudent.Course (Sem @currentStudent.Semester)</dd>
+
+                            <dt class="col-sm-5 text-muted">Email</dt>
+                            <dd class="col-sm-7">@currentStudent.Email</dd>
+
+                            <dt class="col-sm-5 text-muted">Phone Number</dt>
+                            <dd class="col-sm-7">@currentStudent.Phone</dd>
+
+                            <hr class="my-2 text-muted" />
+
+                            <dt class="col-sm-5 text-muted">Hostel Room</dt>
+                            <dd class="col-sm-7 fw-bold text-primary">
+                                @(activeAlloc?.Room != null ? $"Room {activeAlloc.Room.RoomNumber} ({activeAlloc.Room.RoomType})" : "Pending Allocation")
+                            </dd>
+
+                            <dt class="col-sm-5 text-muted">Allotted Date</dt>
+                            <dd class="col-sm-7">
+                                @(activeAlloc != null ? activeAlloc.AllocationDate.ToString("dd MMM yyyy") : "N/A")
+                            </dd>
+                        </dl>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">Your student profile is currently being synchronized with your user account.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Recent Payments Table -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-credit-card text-success me-2"></i>My Payment History</h6>
+                    <a asp-controller="Payments" asp-action="Index" class="btn btn-outline-primary btn-sm">All Payments</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (currentStudent?.Payments != null && currentStudent.Payments.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Receipt</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in currentStudent.Payments.OrderByDescending(x => x.PaymentDate).Take(4))
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold">@p.PaymentMonth</td>
+                                            <td class="fw-bold text-success">₹@p.Amount.ToString("N0")</td>
+                                            <td>@p.PaymentDate.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                <span class="badge @(p.PaymentStatus == "Paid" ? "bg-success" : "bg-danger") badge-custom">
+                                                    @p.PaymentStatus
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a asp-controller="Payments" asp-action="Details" asp-route-id="@p.PaymentId" class="btn btn-sm btn-outline-info">
+                                                    <i class="bi bi-receipt"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted small">No payment transactions found.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- ============================================== -->
+    <!-- ADMINISTRATOR / GUEST HOSTEL OVERVIEW          -->
+    <!-- ============================================== -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="h4 fw-bold mb-1">Hostel Overview</h2>
+            <p class="text-muted mb-0 small">Real-time statistics & room allocation monitoring</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-controller="Allocations" asp-action="Create" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-key-fill me-1"></i> Allocate Room
+            </a>
+            <a asp-controller="Students" asp-action="Create" class="btn btn-outline-primary btn-sm px-3">
+                <i class="bi bi-person-plus-fill me-1"></i> Add Student
+            </a>
+            <a asp-controller="Payments" asp-action="Create" class="btn btn-outline-success btn-sm px-3">
+                <i class="bi bi-cash-stack me-1"></i> Record Payment
+            </a>
+            <a asp-controller="Maintenance" asp-action="Create" class="btn btn-outline-warning text-dark btn-sm px-3">
+                <i class="bi bi-tools me-1"></i> New Request
+            </a>
+        </div>
+    </div>
+
+    <!-- 7 Live Summary Metric Cards (Directly from MySQL Database) -->
+    <div class="row g-3 mb-4">
+        <!-- Total Students -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card stat-blue">
+                <div>
+                    <div class="stat-title">Total Students</div>
+                    <div class="stat-value">@Model.TotalStudents</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Rooms -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card stat-cyan">
+                <div>
+                    <div class="stat-title">Total Rooms</div>
+                    <div class="stat-value">@Model.TotalRooms</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-door-closed-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Capacity -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card stat-indigo">
+                <div>
+                    <div class="stat-title">Total Bed Capacity</div>
+                    <div class="stat-value">@Model.TotalCapacity</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Beds -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card stat-green">
+                <div>
+                    <div class="stat-title">Available Beds</div>
+                    <div class="stat-value">@Model.AvailableBeds</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Occupied Beds -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card stat-amber">
+                <div>
+                    <div class="stat-title">Occupied Beds</div>
+                    <div class="stat-value">@Model.OccupiedBeds</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Payments -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card stat-rose">
+                <div>
+                    <div class="stat-title">Pending Payments</div>
+                    <div class="stat-value">@Model.PendingPayments</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Maintenance -->
+        <div class="col-sm-12 col-lg-4">
+            <div class="stat-card stat-purple">
+                <div>
+                    <div class="stat-title">Pending Maintenance</div>
+                    <div class="stat-value">@Model.PendingMaintenanceRequests</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-wrench-adjustable-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Room Allocations Table -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history text-primary"></i>
+                <h5 class="mb-0 fs-6 fw-bold">Recent Room Allocations</h5>
+            </div>
+            <a asp-controller="Allocations" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                View All Allocations &rarr;
+            </a>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.RecentAllocations.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Room No.</th>
+                                <th>Room Type</th>
+                                <th>Allocation Date</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.RecentAllocations)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@(item.Student?.FullName ?? "Unknown")</div>
+                                        <div class="text-muted small">@(item.Student?.Email ?? "")</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            @(item.Student?.Course ?? "N/A") (Sem @(item.Student?.Semester))
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-primary">
+                                            Room @(item.Room?.RoomNumber ?? "N/A")
+                                        </span>
+                                    </td>
+                                    <td>@(item.Room?.RoomType ?? "N/A")</td>
+                                    <td>@item.AllocationDate.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        @if (item.Status == "Active")
+                                        {
+                                            <span class="badge bg-success badge-custom">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary badge-custom">@item.Status</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-controller="Allocations" asp-action="Details" asp-route-id="@item.AllocationId" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
+                    <p class="mb-2">No room allocations recorded yet.</p>
+                    <a asp-controller="Allocations" asp-action="Create" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-lg"></i> Allocate First Room
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,92 @@
+@model HostelManagementSystem.Models.Payment
+
+@{
+    ViewData["Title"] = "Record Payment";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="h4 fw-bold mb-1">Record Fee Payment</h2>
+                <p class="text-muted mb-0 small">Enter student rent payment details and issue receipt</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label asp-for="StudentId" class="form-label fw-semibold"></label>
+                            <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                            <span asp-validation-for="StudentId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Amount" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input asp-for="Amount" class="form-control" type="number" step="100" min="1" placeholder="e.g. 5000" />
+                            </div>
+                            <span asp-validation-for="Amount" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PaymentMonth" class="form-label fw-semibold"></label>
+                            <input asp-for="PaymentMonth" class="form-control" placeholder="e.g. October 2026" />
+                            <span asp-validation-for="PaymentMonth" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PaymentDate" class="form-label fw-semibold"></label>
+                            <input asp-for="PaymentDate" class="form-control" type="date" />
+                            <span asp-validation-for="PaymentDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PaymentMethod" class="form-label fw-semibold"></label>
+                            <select asp-for="PaymentMethod" class="form-select">
+                                <option value="UPI">UPI (Google Pay / PhonePe / Paytm)</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Debit / Credit Card</option>
+                                <option value="Net Banking">Net Banking</option>
+                            </select>
+                            <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="PaymentStatus" class="form-label fw-semibold"></label>
+                            <select asp-for="PaymentStatus" class="form-select">
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                            <span asp-validation-for="PaymentStatus" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-lg me-1"></i> Save Payment Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
